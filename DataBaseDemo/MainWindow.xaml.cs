@@ -42,7 +42,8 @@ namespace DataBaseDemo {
 
         private void btnEdit_Click(object sender, RoutedEventArgs e) {
             int id = int.Parse(txtSuperID.Text);
-            SuperHero superPerson = new SuperHero();//DAL.GetSuperHero(id);
+            //SuperHero superPerson = new SuperHero();//DAL.GetSuperHero(id);
+            SuperHero superPerson = DAL.GetSuperHero(id);
 
             superPerson.ID = id;
             superPerson.FirstName = txtFirstName.Text;

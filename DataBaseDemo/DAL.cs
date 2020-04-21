@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace DataBaseDemo {
     static class DAL {
-        static String connectString = "Data Source=localhost;Initial Catalog=SuperHeroes;Integrated Security=True";
+        static String connectString = "Data Source=localhost;Initial Catalog=SuperHeroes;User ID=db_reader;Password=password";
+        static String editConnectString = "Data Source=localhost;Initial Catalog=SuperHeroes;User ID=db_writer;Password=password";
 
         public static List<SuperHero> GetAllSuperHeroes() {
             List<SuperHero> retList = new List<SuperHero>();
@@ -28,8 +29,10 @@ namespace DataBaseDemo {
                 // Create Command
                 SqlCommand comm = new SqlCommand();
                 comm.Connection = conn;
-                comm.CommandType = System.Data.CommandType.Text;
-                comm.CommandText = "SELECT * FROM SuperHeroes";
+                //comm.CommandType = System.Data.CommandType.Text;
+                //comm.CommandText = "SELECT * FROM SuperHeroes";
+                comm.CommandText = "sprocSuperHeroesGetAll";
+                comm.CommandType = System.Data.CommandType.StoredProcedure;
 
                 // Execute Command
                 SqlDataReader dr = comm.ExecuteReader();
@@ -68,10 +71,13 @@ namespace DataBaseDemo {
                 //SqlCommand comm = new SqlCommand(sql,conn);
 
                 // With Parameterization
-                string sql = "SELECT * FROM SuperHeroes " +
-                   "WHERE SuperHeroID = @ID"; 
-                SqlCommand comm = new SqlCommand(sql, conn);
-                comm.Parameters.AddWithValue("@ID", id);
+                //string sql = "SELECT * FROM SuperHeroes " +
+                //   "WHERE SuperHeroID = @ID"; 
+                //SqlCommand comm = new SqlCommand(sql, conn);
+                SqlCommand comm = new SqlCommand(
+                    "sprocSuperHeroGet", conn);
+                comm.CommandType = System.Data.CommandType.StoredProcedure;
+                comm.Parameters.AddWithValue("@SuperHeroID", id);
 
                 comm.Connection.Open();
                 SqlDataReader dr = comm.ExecuteReader();
@@ -94,6 +100,8 @@ namespace DataBaseDemo {
             retSup.FirstName = (string)dr["FirstName"];
             retSup.LastName = (string)dr["LastName"];
             retSup.Height = (decimal)dr["HeightInInches"];
+            retSup.DateOfBirth = (DateTime)dr["DateOfBirth"];
+            
             return retSup;
         }
 
@@ -102,19 +110,31 @@ namespace DataBaseDemo {
             SqlConnection conn = null;
 
             try {
-                conn = new SqlConnection(connectString);
+                conn = new SqlConnection(editConnectString);
 
                 // With Parameterization
-                string sql = "UPDATE SuperHeroes SET " +
-                        "FirstName = @FirstName, " +
-                        "LastName = @LastName, " +
-                        "HeightInInches = @Height " +
-                    "WHERE SuperHeroID = @ID";
-                SqlCommand comm = new SqlCommand(sql, conn);
+                //string sql = "UPDATE SuperHeroes SET " +
+                //        "FirstName = @FirstName, " +
+                //        "LastName = @LastName, " +
+                //        "HeightInInches = @Height " +
+                //    "WHERE SuperHeroID = @ID";
+                //SqlCommand comm = new SqlCommand(sql, conn);
+                SqlCommand comm = new SqlCommand("sproc_SuperHeroUpdate",
+                    conn);
+                comm.CommandType = System.Data.CommandType.StoredProcedure;
+                //comm.Parameters.AddWithValue("@FirstName", superPerson.FirstName);
+                //comm.Parameters.AddWithValue("@LastName", superPerson.LastName);
+                //comm.Parameters.AddWithValue("@Height", superPerson.Height);
+                //comm.Parameters.AddWithValue("@ID", superPerson.ID);
+                comm.Parameters.AddWithValue("@SuperHeroID", superPerson.ID);
                 comm.Parameters.AddWithValue("@FirstName", superPerson.FirstName);
                 comm.Parameters.AddWithValue("@LastName", superPerson.LastName);
-                comm.Parameters.AddWithValue("@Height", superPerson.Height);
-                comm.Parameters.AddWithValue("@ID", superPerson.ID);
+                comm.Parameters.AddWithValue("@DateOfBirth", superPerson.DateOfBirth);
+                comm.Parameters.AddWithValue("@EyeColor", 0);
+                comm.Parameters.AddWithValue("@HeightInInches", superPerson.Height);
+                comm.Parameters.AddWithValue("@AlterEgoID", superPerson.ID);
+                comm.Parameters.AddWithValue("@SideKickID", 0);
+                comm.Parameters.AddWithValue("@CostumeID", 1);
 
                 comm.Connection.Open();
                 numberOfRowsAffected = comm.ExecuteNonQuery();
