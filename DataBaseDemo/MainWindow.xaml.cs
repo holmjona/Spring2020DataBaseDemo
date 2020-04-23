@@ -24,11 +24,18 @@ namespace DataBaseDemo {
         }
 
         private void btnLoad_Click(object sender, RoutedEventArgs e) {
-            List<SuperHero> supers = DAL.GetAllSuperHeroes();
-            foreach (SuperHero sup in supers) {
-                lbSupers.Items.Add(sup);
+            if (chkGetCitizens.IsChecked == true) {
+                List<Citizen> cits = DAL.GetAllCitizens();
+                foreach (Citizen sup in cits) {
+                    lbSupers.Items.Add(sup);
+                }
+            } else {
+                List<SuperHero> supers = DAL.GetAllSuperHeroes();
+                foreach (SuperHero sup in supers) {
+                    lbSupers.Items.Add(sup);
+                }
+                //tbOutput.Text = "Error: " + ex.Message;
             }
-            //tbOutput.Text = "Error: " + ex.Message;
         }
 
         private void btnGetByID_Click(object sender, RoutedEventArgs e) {
@@ -51,6 +58,31 @@ namespace DataBaseDemo {
             superPerson.Height = decimal.Parse(txtHeight.Text);
 
             DAL.UpdateSuperHero(superPerson);
+
+        }
+
+        private void lbSupers_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+            ListBox lst = (ListBox)sender;
+            object picked = lst.SelectedItem;
+
+            //SuperHero pickSup = (SuperHero)picked;
+            //Citizen cit = DAL.GetCitizen(pickSup.AlterEgoID);
+            //string whatToShow = string.Format(
+            //    "Name: {0} \r\nHeight: {1} \r\nAlter Ego: {2}",
+            //    pickSup.ToString(), pickSup.Height,cit.ToString());
+
+            SuperHero pickSup = (SuperHero)picked;
+            ////pickSup.AlterEgo = new Citizen();
+            //string whatToShow = string.Format(
+            //    "Name: {0} \r\nHeight: {1} \r\nAlter Ego: {2} {3}",
+            //    pickSup.ToString(), pickSup.Height, 
+            //    pickSup.AlterEgo.FirstName, pickSup.AlterEgo.LastName);
+
+            //MessageBox.Show(whatToShow);
+            foreach (SuperHero frd in pickSup.Friends){
+                lbSupers.Items.Add(frd);
+            }
+
 
         }
 
